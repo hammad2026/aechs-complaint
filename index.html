@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AECHS Rawalpindi - Complaint Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:#0a1628;--gold:#c9a84c;--gold-light:#e8c97a;--white:#f8f5ef;
+    --gray:#8a8f9e;--danger:#c0392b;--success:#1a6b45;
+    --card-bg:#101e35;--input-bg:#0d1a2e;--border:rgba(201,168,76,0.25);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden;}
+  .bg-pattern{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 20% 0%,rgba(201,168,76,0.08) 0%,transparent 60%),repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(201,168,76,0.015) 40px,rgba(201,168,76,0.015) 41px);}
+  header{position:relative;z-index:10;background:rgba(10,22,40,0.95);border-bottom:1px solid var(--border);padding:0 2rem;backdrop-filter:blur(20px);}
+  .header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:1rem 0;gap:1rem;flex-wrap:wrap;}
+  .logo-area{display:flex;align-items:center;gap:1rem;}
+  .logo-icon{width:52px;height:52px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;box-shadow:0 4px 20px rgba(201,168,76,0.3);flex-shrink:0;}
+  .logo-text h1{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--gold-light);line-height:1.2;}
+  .logo-text p{font-size:0.72rem;color:var(--gray);letter-spacing:0.05em;}
+  .header-btns{display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;}
+  .btn{padding:0.55rem 1.2rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;letter-spacing:0.02em;}
+  .btn-outline{background:transparent;border:1.5px solid var(--gold);color:var(--gold);}
+  .btn-outline:hover{background:var(--gold);color:var(--navy);}
+  .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--navy);}
+  .btn-gold:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,0.4);}
+  .btn-danger{background:var(--danger);color:white;}
+  .btn-danger:hover{background:#a93226;}
+  .btn-sm{padding:0.4rem 0.9rem;font-size:0.78rem;}
+  .btn-full{width:100%;padding:0.85rem;font-size:0.95rem;}
+  .btn:disabled{opacity:0.6;cursor:not-allowed;transform:none!important;}
+  .main{position:relative;z-index:1;}
+  .page{display:none;animation:fadeIn 0.4s ease;}
+  .page.active{display:block;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .hero{max-width:1200px;margin:0 auto;padding:4rem 2rem 3rem;text-align:center;}
+  .hero-badge{display:inline-block;background:rgba(201,168,76,0.12);border:1px solid var(--border);color:var(--gold);font-size:0.78rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:0.4rem 1.2rem;border-radius:50px;margin-bottom:1.5rem;}
+  .hero h2{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:900;line-height:1.15;margin-bottom:1rem;background:linear-gradient(135deg,var(--white) 40%,var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .hero p{color:var(--gray);font-size:1.05rem;max-width:560px;margin:0 auto 2.5rem;line-height:1.7;}
+  .hero-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;max-width:860px;margin:0 auto;}
+  .hero-card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:2rem 1.5rem;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;}
+  .hero-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-light));opacity:0;transition:opacity 0.3s;}
+  .hero-card:hover{border-color:var(--gold);transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,0.4);}
+  .hero-card:hover::before{opacity:1;}
+  .hero-card .icon{font-size:2.2rem;margin-bottom:1rem;}
+  .hero-card h3{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:0.5rem;color:var(--gold-light);}
+  .hero-card p{font-size:0.85rem;color:var(--gray);line-height:1.6;}
+  .overlay{display:none;position:fixed;inset:0;background:rgba(5,12,24,0.85);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(8px);padding:1rem;}
+  .overlay.open{display:flex;animation:fadeIn 0.25s ease;}
+  .modal{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:440px;position:relative;box-shadow:0 30px 80px rgba(0,0,0,0.6);max-height:90vh;overflow-y:auto;}
+  .modal-close{position:absolute;top:1.2rem;right:1.2rem;background:rgba(255,255,255,0.06);border:none;color:var(--gray);font-size:1.1rem;width:32px;height:32px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+  .modal-close:hover{background:rgba(255,255,255,0.12);color:var(--white);}
+  .modal h3{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:0.4rem;color:var(--gold-light);}
+  .modal .subtitle{color:var(--gray);font-size:0.88rem;margin-bottom:1.8rem;}
+  .form-group{margin-bottom:1.2rem;}
+  label{display:block;font-size:0.82rem;font-weight:600;color:var(--gray);margin-bottom:0.45rem;letter-spacing:0.04em;text-transform:uppercase;}
+  input,textarea,select{width:100%;background:var(--input-bg);border:1.5px solid rgba(201,168,76,0.18);border-radius:10px;padding:0.75rem 1rem;color:var(--white);font-family:'DM Sans',sans-serif;font-size:0.92rem;transition:border-color 0.2s,box-shadow 0.2s;outline:none;}
+  input:focus,textarea:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,0.12);}
+  input::placeholder,textarea::placeholder{color:rgba(138,143,158,0.6);}
+  textarea{resize:vertical;min-height:110px;}
+  select option{background:var(--navy);}
+  .dash-wrap{max-width:1100px;margin:0 auto;padding:2rem;}
+  .dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;}
+  .dash-header h2{font-family:'Playfair Display',serif;font-size:1.7rem;color:var(--gold-light);}
+  .dash-header p{color:var(--gray);font-size:0.88rem;}
+  .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:2rem;}
+  .stat-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:1.4rem 1.2rem;text-align:center;}
+  .stat-card .num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--gold);}
+  .stat-card .lbl{font-size:0.78rem;color:var(--gray);margin-top:0.3rem;text-transform:uppercase;letter-spacing:0.06em;}
+  .complaints-table{width:100%;border-collapse:collapse;}
+  .complaints-table th{text-align:left;padding:0.9rem 1rem;font-size:0.75rem;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:0.07em;border-bottom:1px solid var(--border);}
+  .complaints-table td{padding:1rem;font-size:0.88rem;border-bottom:1px solid rgba(201,168,76,0.07);vertical-align:middle;}
+  .complaints-table tr:hover td{background:rgba(201,168,76,0.04);}
+  .table-wrap{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+  .table-toolbar{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:0.75rem;}
+  .table-toolbar h3{font-size:1rem;font-weight:600;}
+  .badge{display:inline-block;padding:0.25rem 0.7rem;border-radius:50px;font-size:0.73rem;font-weight:600;}
+  .badge-pending{background:rgba(201,168,76,0.15);color:var(--gold);}
+  .badge-progress{background:rgba(52,152,219,0.15);color:#5dade2;}
+  .badge-resolved{background:rgba(26,107,69,0.2);color:#58d68d;}
+  .badge-rejected{background:rgba(192,57,43,0.15);color:#ec7063;}
+  .form-card{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:2.5rem;max-width:500px;}
+  .form-card h2{font-family:'Playfair Display',serif;font-size:1.7rem;color:var(--gold-light);margin-bottom:0.4rem;}
+  .form-card p{color:var(--gray);font-size:0.88rem;margin-bottom:2rem;}
+  .users-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;}
+  .user-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:1.4rem;display:flex;align-items:center;gap:1rem;}
+  .user-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;color:var(--navy);flex-shrink:0;}
+  .user-info h4{font-size:0.95rem;font-weight:600;}
+  .user-info p{font-size:0.78rem;color:var(--gray);}
+  .user-actions{margin-left:auto;display:flex;gap:0.5rem;}
+  .nav-tabs{display:flex;gap:0.5rem;margin-bottom:2rem;flex-wrap:wrap;}
+  .nav-tab{padding:0.55rem 1.2rem;background:transparent;border:1.5px solid var(--border);color:var(--gray);border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;transition:all 0.2s;}
+  .nav-tab.active,.nav-tab:hover{background:var(--gold);color:var(--navy);border-color:var(--gold);font-weight:600;}
+  .alert{padding:1rem 1.2rem;border-radius:10px;font-size:0.88rem;margin-bottom:1.2rem;display:none;}
+  .alert.show{display:block;animation:fadeIn 0.3s;}
+  .alert-success{background:rgba(26,107,69,0.2);border:1px solid rgba(88,214,141,0.3);color:#58d68d;}
+  .alert-error{background:rgba(192,57,43,0.15);border:1px solid rgba(236,112,99,0.3);color:#ec7063;}
+  .alert-info{background:rgba(52,152,219,0.15);border:1px solid rgba(93,173,226,0.3);color:#5dade2;}
+  .loading-screen{display:none;position:fixed;inset:0;background:var(--navy);z-index:300;flex-direction:column;align-items:center;justify-content:center;gap:1rem;}
+  .loading-screen.show{display:flex;}
+  .spinner{width:48px;height:48px;border:4px solid rgba(201,168,76,0.2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loading-screen p{color:var(--gray);font-size:0.95rem;}
+  footer{text-align:center;padding:2rem;color:var(--gray);font-size:0.8rem;border-top:1px solid var(--border);position:relative;z-index:1;}
+  footer span{color:var(--gold);font-weight:600;}
+  .text-gold{color:var(--gold);}
+  .text-gray{color:var(--gray);font-size:0.85rem;}
+  .mt-1{margin-top:0.5rem;}
+  .divider{height:1px;background:var(--border);margin:1.5rem 0;}
+  .empty-state{text-align:center;padding:3rem;color:var(--gray);}
+  .empty-state .icon{font-size:2.5rem;margin-bottom:1rem;}
+  ::-webkit-scrollbar{width:6px;}
+  ::-webkit-scrollbar-track{background:var(--navy);}
+  ::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px;}
+  @media(max-width:600px){.header-inner{flex-direction:column;text-align:center;}.modal{padding:1.5rem;}.form-card{padding:1.5rem;}}
+</style>
+</head>
+<body>
+<div class="bg-pattern"></div>
+
+<!-- LOADING SCREEN -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="logo-icon" style="width:64px;height:64px;font-size:2rem;background:linear-gradient(135deg,#c9a84c,#e8c97a);border-radius:16px;display:flex;align-items:center;justify-content:center;">✈️</div>
+  <div class="spinner"></div>
+  <p id="loadingMsg">Loading AECHS Portal...</p>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-icon">✈️</div>
+      <div class="logo-text">
+        <h1>Airport Employees Cooperative Housing Society</h1>
+        <p>Rawalpindi — Complaint Management Portal</p>
+      </div>
+    </div>
+    <div class="header-btns" id="headerBtns">
+      <button class="btn btn-outline" onclick="openModal('userLoginModal')">User Login</button>
+      <button class="btn btn-gold" onclick="openModal('adminLoginModal')">Admin Login</button>
+    </div>
+    <div class="header-btns" id="userHeaderBtns" style="display:none">
+      <span class="text-gray" id="userGreet">Welcome</span>
+      <button class="btn btn-outline btn-sm" onclick="openModal('complaintModal')">+ New Complaint</button>
+      <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
+    </div>
+    <div class="header-btns" id="adminHeaderBtns" style="display:none">
+      <span class="text-gray">👑 Admin Panel</span>
+      <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
+    </div>
+  </div>
+</header>
+
+<div class="main">
+  <!-- HOME PAGE -->
+  <div class="page active" id="homePage">
+    <div class="hero">
+      <div class="hero-badge">Official Portal · AECHS Rawalpindi</div>
+      <h2>Complaint Management System</h2>
+      <p>Submit, track, and resolve your housing society complaints efficiently. Login to access your account.</p>
+      <div class="hero-cards">
+        <div class="hero-card" onclick="openModal('userLoginModal')">
+          <div class="icon">👤</div>
+          <h3>Resident Login</h3>
+          <p>Submit new complaints and track their resolution status in real-time.</p>
+        </div>
+        <div class="hero-card" onclick="openModal('adminLoginModal')">
+          <div class="icon">🛡️</div>
+          <h3>Admin Panel</h3>
+          <p>Manage users, review all complaints, and update resolution status.</p>
+        </div>
+        <div class="hero-card" onclick="openModal('infoModal')">
+          <div class="icon">ℹ️</div>
+          <h3>How It Works</h3>
+          <p>Learn about the complaint submission and resolution process.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USER DASHBOARD -->
+  <div class="page" id="userDashboard">
+    <div class="dash-wrap">
+      <div class="dash-header">
+        <div>
+          <h2>My Complaints</h2>
+          <p>Track all your submitted complaints below</p>
+        </div>
+        <button class="btn btn-gold" onclick="openModal('complaintModal')">+ Submit Complaint</button>
+      </div>
+      <div class="stats-row" id="userStats"></div>
+      <div class="table-wrap">
+        <div class="table-toolbar"><h3>Complaint History</h3></div>
+        <div style="overflow-x:auto">
+          <table class="complaints-table">
+            <thead><tr><th>ID</th><th>Category</th><th>Subject</th><th>Date</th><th>Status</th></tr></thead>
+            <tbody id="userComplaintsBody"><tr><td colspan="5"><div class="empty-state"><div class="icon">📋</div>Loading...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <div class="page" id="adminDashboard">
+    <div class="dash-wrap">
+      <div class="dash-header">
+        <div><h2>Admin Dashboard</h2><p>AECHS Rawalpindi — Complaint Management System</p></div>
+      </div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="adminTab('complaints',this)">All Complaints</button>
+        <button class="nav-tab" onclick="adminTab('users',this)">Manage Users</button>
+        <button class="nav-tab" onclick="adminTab('addUser',this)">Add New User</button>
+      </div>
+
+      <div id="tab-complaints">
+        <div class="stats-row" id="adminStats"></div>
+        <div class="table-wrap">
+          <div class="table-toolbar">
+            <h3>All Complaints</h3>
+            <select style="width:auto;padding:0.4rem 0.8rem;font-size:0.82rem" onchange="filterComplaints(this.value)">
+              <option value="all">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="complaints-table">
+              <thead><tr><th>ID</th><th>User</th><th>Category</th><th>Subject</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="adminComplaintsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-users" style="display:none">
+        <div class="users-grid" id="usersGrid"></div>
+      </div>
+
+      <div id="tab-addUser" style="display:none">
+        <div class="form-card">
+          <h2>Add New Resident</h2>
+          <p>Only admins can register new users.</p>
+          <div class="alert" id="addUserAlert"></div>
+          <div class="form-group"><label>Full Name</label><input type="text" id="newUserName" placeholder="e.g. Muhammad Ahmad"></div>
+          <div class="form-group"><label>Employee ID / Plot No.</label><input type="text" id="newUserEmpId" placeholder="e.g. EMP-2024-001"></div>
+          <div class="form-group"><label>Email Address</label><input type="email" id="newUserEmail" placeholder="e.g. ahmad@email.com"></div>
+          <div class="form-group"><label>Password</label><input type="password" id="newUserPass" placeholder="Min 6 characters"></div>
+          <button class="btn btn-gold btn-full" id="addUserBtn" onclick="addUser()">Create User Account</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>Airport Employees Cooperative Housing Society, Rawalpindi &nbsp;|&nbsp; <span>✦ Designed by Muhammad Hammad ✦</span></footer>
+
+<!-- MODALS -->
+<!-- USER LOGIN -->
+<div class="overlay" id="userLoginModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('userLoginModal')">✕</button>
+    <h3>Resident Login</h3>
+    <p class="subtitle">Enter your credentials provided by admin</p>
+    <div class="alert" id="userLoginAlert"></div>
+    <div class="form-group"><label>Email</label><input type="email" id="userLoginEmail" placeholder="Your email address" autocomplete="off"></div>
+    <div class="form-group"><label>Password</label><input type="password" id="userLoginPass" placeholder="Your password" onkeydown="if(event.key==='Enter')loginUser()"></div>
+    <div class="text-gray mt-1" style="margin-bottom:1rem;font-size:0.78rem">🔒 Contact admin to get your login credentials</div>
+    <button class="btn btn-gold btn-full" id="userLoginBtn" onclick="loginUser()">Sign In</button>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div class="overlay" id="adminLoginModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('adminLoginModal')">✕</button>
+    <h3>Admin Login</h3>
+    <p class="subtitle">Authorized personnel only</p>
+    <div class="alert" id="adminLoginAlert"></div>
+    <div class="form-group"><label>Admin Email</label><input type="email" id="adminLoginEmail" placeholder="Admin email" autocomplete="off"></div>
+    <div class="form-group"><label>Admin Password</label><input type="password" id="adminLoginPass" placeholder="Admin password" onkeydown="if(event.key==='Enter')loginAdmin()"></div>
+    <button class="btn btn-gold btn-full" id="adminLoginBtn" onclick="loginAdmin()">Access Admin Panel</button>
+  </div>
+</div>
+
+<!-- COMPLAINT MODAL -->
+<div class="overlay" id="complaintModal">
+  <div class="modal" style="max-width:520px">
+    <button class="modal-close" onclick="closeModal('complaintModal')">✕</button>
+    <h3>Submit Complaint</h3>
+    <p class="subtitle">Describe your issue clearly for faster resolution</p>
+    <div class="alert" id="complaintAlert"></div>
+    <div class="form-group">
+      <label>Category</label>
+      <select id="complaintCat">
+        <option value="">-- Select Category --</option>
+        <option>Water Supply</option><option>Electricity</option>
+        <option>Roads & Pathways</option><option>Sewerage / Drainage</option>
+        <option>Security</option><option>Plot / Allotment Issue</option>
+        <option>Fee / Payment</option><option>Construction</option><option>Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Subject</label><input type="text" id="complaintSubject" placeholder="Brief subject of the issue"></div>
+    <div class="form-group"><label>Details</label><textarea id="complaintDesc" placeholder="Describe the issue in detail..."></textarea></div>
+    <button class="btn btn-gold btn-full" id="complaintBtn" onclick="submitComplaint()">Submit Complaint</button>
+  </div>
+</div>
+
+<!-- INFO MODAL -->
+<div class="overlay" id="infoModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('infoModal')">✕</button>
+    <h3>How It Works</h3>
+    <p class="subtitle">Complaint submission & resolution process</p>
+    <div style="line-height:1.9;font-size:0.9rem;color:var(--gray)">
+      <p>1️⃣ &nbsp;<strong style="color:var(--white)">Admin creates your account</strong> — Residents cannot self-register.</p>
+      <div class="divider"></div>
+      <p>2️⃣ &nbsp;<strong style="color:var(--white)">Login with your credentials</strong> — Use email & password given by admin.</p>
+      <div class="divider"></div>
+      <p>3️⃣ &nbsp;<strong style="color:var(--white)">Submit your complaint</strong> — Choose category and describe the issue.</p>
+      <div class="divider"></div>
+      <p>4️⃣ &nbsp;<strong style="color:var(--white)">Track your complaint</strong> — Pending → In Progress → Resolved.</p>
+      <div class="divider"></div>
+      <p>📞 &nbsp;For help contact the AECHS office, Rawalpindi.</p>
+    </div>
+  </div>
+</div>
+
+<!-- UPDATE STATUS MODAL -->
+<div class="overlay" id="updateStatusModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('updateStatusModal')">✕</button>
+    <h3>Update Complaint Status</h3>
+    <p class="subtitle" id="updateComplaintInfo"></p>
+    <input type="hidden" id="updateComplaintId">
+    <div class="form-group">
+      <label>New Status</label>
+      <select id="newStatus">
+        <option value="Pending">Pending</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Resolved">Resolved</option>
+        <option value="Rejected">Rejected</option>
+      </select>
+    </div>
+    <button class="btn btn-gold btn-full" onclick="updateStatus()">Update Status</button>
+  </div>
+</div>
+
+<!-- FIREBASE + APP SCRIPT -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, orderBy, serverTimestamp, getDoc, setDoc }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBcfbFHgiduZZX0ShBtu2rt_X8Sfd3nS_s",
+  authDomain: "aechs-complaint.firebaseapp.com",
+  projectId: "aechs-complaint",
+  storageBucket: "aechs-complaint.firebasestorage.app",
+  messagingSenderId: "316150789195",
+  appId: "1:316150789195:web:cb3c1e1fb3e509e633c9ce",
+  measurementId: "G-XNCYDESE1D"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db  = getFirestore(app);
+
+// Admin email — change this to your admin email
+const ADMIN_EMAIL = "admin@aechs.com";
+
+let currentUserData = null;
+let allComplaints = [];
+let allUsers = [];
+
+// ---- LOADING ----
+function showLoading(msg="Loading...") {
+  document.getElementById('loadingScreen').classList.add('show');
+  document.getElementById('loadingMsg').textContent = msg;
+}
+function hideLoading() { document.getElementById('loadingScreen').classList.remove('show'); }
+
+// ---- MODAL ----
+window.openModal = (id) => document.getElementById(id).classList.add('open');
+window.closeModal = (id) => {
+  document.getElementById(id).classList.remove('open');
+  document.querySelectorAll(`#${id} .alert`).forEach(a=>a.classList.remove('show'));
+};
+
+// ---- SHOW PAGE ----
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ---- ALERT ----
+function showAlert(id,msg,type){
+  const el=document.getElementById(id);
+  el.className=`alert alert-${type} show`;
+  el.textContent=msg;
+}
+
+// ---- STATUS BADGE ----
+function statusBadge(s){
+  const m={'Pending':'badge-pending','In Progress':'badge-progress','Resolved':'badge-resolved','Rejected':'badge-rejected'};
+  return `<span class="badge ${m[s]||'badge-pending'}">${s}</span>`;
+}
+
+// ---- AUTH STATE ----
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    showLoading("Loading your data...");
+    try {
+      const snap = await getDoc(doc(db,'users', user.uid));
+      if (snap.exists()) {
+        currentUserData = { uid: user.uid, ...snap.data() };
+        if (currentUserData.role === 'admin') {
+          goAdmin();
+        } else {
+          goUser();
+        }
+      } else {
+        await signOut(auth);
+      }
+    } catch(e) { console.error(e); }
+    hideLoading();
+  } else {
+    currentUserData = null;
+    showPage('homePage');
+    document.getElementById('headerBtns').style.display='flex';
+    document.getElementById('userHeaderBtns').style.display='none';
+    document.getElementById('adminHeaderBtns').style.display='none';
+  }
+});
+
+// ---- USER LOGIN ----
+window.loginUser = async () => {
+  const email = document.getElementById('userLoginEmail').value.trim();
+  const pass  = document.getElementById('userLoginPass').value;
+  if (!email||!pass) { showAlert('userLoginAlert','Please fill all fields.','error'); return; }
+  const btn = document.getElementById('userLoginBtn');
+  btn.disabled=true; btn.textContent='Signing in...';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    closeModal('userLoginModal');
+  } catch(e) {
+    showAlert('userLoginAlert', friendlyError(e.code), 'error');
+  }
+  btn.disabled=false; btn.textContent='Sign In';
+};
+
+// ---- ADMIN LOGIN ----
+window.loginAdmin = async () => {
+  const email = document.getElementById('adminLoginEmail').value.trim();
+  const pass  = document.getElementById('adminLoginPass').value;
+  if (!email||!pass) { showAlert('adminLoginAlert','Please fill all fields.','error'); return; }
+  const btn = document.getElementById('adminLoginBtn');
+  btn.disabled=true; btn.textContent='Verifying...';
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, pass);
+    const snap = await getDoc(doc(db,'users', cred.user.uid));
+    if (!snap.exists() || snap.data().role !== 'admin') {
+      await signOut(auth);
+      showAlert('adminLoginAlert','You are not an admin.','error');
+    } else {
+      closeModal('adminLoginModal');
+    }
+  } catch(e) {
+    showAlert('adminLoginAlert', friendlyError(e.code), 'error');
+  }
+  btn.disabled=false; btn.textContent='Access Admin Panel';
+};
+
+// ---- LOGOUT ----
+window.logout = async () => { await signOut(auth); showPage('homePage'); };
+
+// ---- GO USER ----
+async function goUser() {
+  document.getElementById('headerBtns').style.display='none';
+  document.getElementById('userHeaderBtns').style.display='flex';
+  document.getElementById('adminHeaderBtns').style.display='none';
+  document.getElementById('userGreet').textContent=`Welcome, ${currentUserData.name}`;
+  await loadUserComplaints();
+  showPage('userDashboard');
+}
+
+// ---- GO ADMIN ----
+async function goAdmin() {
+  document.getElementById('headerBtns').style.display='none';
+  document.getElementById('userHeaderBtns').style.display='none';
+  document.getElementById('adminHeaderBtns').style.display='flex';
+  await loadAllData();
+  renderAdminDashboard();
+  showPage('adminDashboard');
+}
+
+// ---- LOAD USER COMPLAINTS ----
+async function loadUserComplaints() {
+  try {
+    const q = query(collection(db,'complaints'), where('userId','==',currentUserData.uid));
+    const snap = await getDocs(q);
+    const list = [];
+    snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+    list.sort((a,b) => (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+    renderUserDashboard(list);
+  } catch(e) { console.error(e); }
+}
+
+// ---- RENDER USER DASHBOARD ----
+function renderUserDashboard(list) {
+  const pending  = list.filter(c=>c.status==='Pending').length;
+  const resolved = list.filter(c=>c.status==='Resolved').length;
+  const progress = list.filter(c=>c.status==='In Progress').length;
+  document.getElementById('userStats').innerHTML=`
+    <div class="stat-card"><div class="num">${list.length}</div><div class="lbl">Total</div></div>
+    <div class="stat-card"><div class="num" style="color:#f1c40f">${pending}</div><div class="lbl">Pending</div></div>
+    <div class="stat-card"><div class="num" style="color:#5dade2">${progress}</div><div class="lbl">In Progress</div></div>
+    <div class="stat-card"><div class="num" style="color:#58d68d">${resolved}</div><div class="lbl">Resolved</div></div>
+  `;
+  const tbody=document.getElementById('userComplaintsBody');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><div class="icon">📋</div>No complaints yet</div></td></tr>`;return;}
+  tbody.innerHTML=list.map(c=>`
+    <tr>
+      <td><span class="text-gold">${c.cmpId||c.id.slice(-6).toUpperCase()}</span></td>
+      <td>${c.category}</td><td>${c.subject}</td>
+      <td>${c.date||''}</td>
+      <td>${statusBadge(c.status)}</td>
+    </tr>`).join('');
+}
+
+// ---- SUBMIT COMPLAINT ----
+window.submitComplaint = async () => {
+  const cat  = document.getElementById('complaintCat').value;
+  const sub  = document.getElementById('complaintSubject').value.trim();
+  const desc = document.getElementById('complaintDesc').value.trim();
+  if(!cat||!sub||!desc){showAlert('complaintAlert','Please fill all fields.','error');return;}
+  const btn=document.getElementById('complaintBtn');
+  btn.disabled=true; btn.textContent='Submitting...';
+  try {
+    const today=new Date().toISOString().slice(0,10);
+    const cmpId='CMP-'+Date.now().toString().slice(-6);
+    await addDoc(collection(db,'complaints'),{
+      userId:currentUserData.uid, userName:currentUserData.name,
+      category:cat, subject:sub, desc, date:today,
+      status:'Pending', cmpId, createdAt:serverTimestamp()
+    });
+    document.getElementById('complaintCat').value='';
+    document.getElementById('complaintSubject').value='';
+    document.getElementById('complaintDesc').value='';
+    showAlert('complaintAlert',`✅ Complaint ${cmpId} submitted!`,'success');
+    await loadUserComplaints();
+    setTimeout(()=>closeModal('complaintModal'),1800);
+  } catch(e){ showAlert('complaintAlert','Error: '+e.message,'error'); }
+  btn.disabled=false; btn.textContent='Submit Complaint';
+};
+
+// ---- LOAD ALL DATA (ADMIN) ----
+async function loadAllData(){
+  const [cSnap, uSnap] = await Promise.all([
+    getDocs(collection(db,'complaints')),
+    getDocs(collection(db,'users'))
+  ]);
+  allComplaints=[];
+  cSnap.forEach(d=>allComplaints.push({id:d.id,...d.data()}));
+  allComplaints.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+  allUsers=[];
+  uSnap.forEach(d=>allUsers.push({uid:d.id,...d.data()}));
+}
+
+// ---- RENDER ADMIN DASHBOARD ----
+function renderAdminDashboard(){
+  const total=allComplaints.length;
+  const pending=allComplaints.filter(c=>c.status==='Pending').length;
+  const resolved=allComplaints.filter(c=>c.status==='Resolved').length;
+  const progress=allComplaints.filter(c=>c.status==='In Progress').length;
+  const users=allUsers.filter(u=>u.role!=='admin').length;
+  document.getElementById('adminStats').innerHTML=`
+    <div class="stat-card"><div class="num">${total}</div><div class="lbl">Total</div></div>
+    <div class="stat-card"><div class="num" style="color:#f1c40f">${pending}</div><div class="lbl">Pending</div></div>
+    <div class="stat-card"><div class="num" style="color:#5dade2">${progress}</div><div class="lbl">In Progress</div></div>
+    <div class="stat-card"><div class="num" style="color:#58d68d">${resolved}</div><div class="lbl">Resolved</div></div>
+    <div class="stat-card"><div class="num" style="color:var(--gold)">${users}</div><div class="lbl">Residents</div></div>
+  `;
+  renderAdminComplaints('all');
+  renderUsers();
+}
+
+window.filterComplaints = (f) => renderAdminComplaints(f);
+
+function renderAdminComplaints(filter){
+  const list=filter==='all'?allComplaints:allComplaints.filter(c=>c.status===filter);
+  const tbody=document.getElementById('adminComplaintsBody');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="icon">📋</div>No complaints found</div></td></tr>`;return;}
+  tbody.innerHTML=list.map(c=>`
+    <tr>
+      <td><span class="text-gold">${c.cmpId||c.id.slice(-6)}</span></td>
+      <td>${c.userName}</td><td>${c.category}</td><td>${c.subject}</td>
+      <td>${c.date||''}</td><td>${statusBadge(c.status)}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="openUpdateModal('${c.id}','${c.status}','${c.cmpId||c.id.slice(-6)}','${c.subject.replace(/'/g,'')}')">Update</button></td>
+    </tr>`).join('');
+}
+
+function renderUsers(){
+  const residents=allUsers.filter(u=>u.role!=='admin');
+  const grid=document.getElementById('usersGrid');
+  if(!residents.length){grid.innerHTML=`<div class="empty-state"><div class="icon">👥</div>No residents added yet</div>`;return;}
+  grid.innerHTML=residents.map(u=>`
+    <div class="user-card">
+      <div class="user-avatar">${u.name.charAt(0).toUpperCase()}</div>
+      <div class="user-info"><h4>${u.name}</h4><p>${u.empId||''} · ${u.email}</p></div>
+      <div class="user-actions"><button class="btn btn-danger btn-sm" onclick="deleteUser('${u.uid}','${u.email}')">Remove</button></div>
+    </div>`).join('');
+}
+
+// ---- ADD USER (Admin creates resident) ----
+window.addUser = async () => {
+  const name  = document.getElementById('newUserName').value.trim();
+  const empId = document.getElementById('newUserEmpId').value.trim();
+  const email = document.getElementById('newUserEmail').value.trim();
+  const pass  = document.getElementById('newUserPass').value;
+  if(!name||!empId||!email||!pass){showAlert('addUserAlert','Please fill all fields.','error');return;}
+  if(pass.length<6){showAlert('addUserAlert','Password must be at least 6 characters.','error');return;}
+  const btn=document.getElementById('addUserBtn');
+  btn.disabled=true; btn.textContent='Creating...';
+  try {
+    // Create secondary auth instance to avoid logging out admin
+    const secApp = initializeApp(firebaseConfig,'secondary-'+Date.now());
+    const secAuth = getAuth(secApp);
+    const cred = await createUserWithEmailAndPassword(secAuth, email, pass);
+    await setDoc(doc(db,'users',cred.user.uid),{name,empId,email,role:'user',createdAt:serverTimestamp()});
+    await signOut(secAuth);
+    showAlert('addUserAlert',`✅ User "${name}" created successfully!`,'success');
+    document.getElementById('newUserName').value='';
+    document.getElementById('newUserEmpId').value='';
+    document.getElementById('newUserEmail').value='';
+    document.getElementById('newUserPass').value='';
+    await loadAllData(); renderUsers();
+  } catch(e){ showAlert('addUserAlert','Error: '+friendlyError(e.code),'error'); }
+  btn.disabled=false; btn.textContent='Create User Account';
+};
+
+// ---- DELETE USER ----
+window.deleteUser = async (uid, email) => {
+  if(!confirm(`Remove user "${email}"? Their complaints will remain.`)) return;
+  try {
+    await deleteDoc(doc(db,'users',uid));
+    await loadAllData(); renderAdminDashboard();
+  } catch(e){ alert('Error: '+e.message); }
+};
+
+// ---- UPDATE STATUS ----
+window.openUpdateModal = (id, status, cmpId, subject) => {
+  document.getElementById('updateComplaintId').value=id;
+  document.getElementById('updateComplaintInfo').textContent=`${cmpId} — ${subject}`;
+  document.getElementById('newStatus').value=status;
+  openModal('updateStatusModal');
+};
+
+window.updateStatus = async () => {
+  const id=document.getElementById('updateComplaintId').value;
+  const ns=document.getElementById('newStatus').value;
+  try {
+    await updateDoc(doc(db,'complaints',id),{status:ns});
+    closeModal('updateStatusModal');
+    await loadAllData(); renderAdminDashboard();
+  } catch(e){ alert('Error: '+e.message); }
+};
+
+// ---- ADMIN TABS ----
+window.adminTab = (tab,btn) => {
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['complaints','users','addUser'].forEach(t=>document.getElementById('tab-'+t).style.display=t===tab?'block':'none');
+};
+
+// ---- CLOSE OVERLAY ON OUTSIDE CLICK ----
+document.querySelectorAll('.overlay').forEach(o=>{
+  o.addEventListener('click',e=>{if(e.target===o)closeModal(o.id);});
+});
+
+// ---- FRIENDLY ERRORS ----
+function friendlyError(code){
+  const m={
+    'auth/invalid-credential':'Wrong email or password.',
+    'auth/user-not-found':'No account found with this email.',
+    'auth/wrong-password':'Incorrect password.',
+    'auth/email-already-in-use':'This email is already registered.',
+    'auth/weak-password':'Password must be at least 6 characters.',
+    'auth/invalid-email':'Please enter a valid email address.',
+    'auth/too-many-requests':'Too many attempts. Try again later.'
+  };
+  return m[code]||'Something went wrong. Try again.';
+}
+
+// ---- SETUP ADMIN ACCOUNT (First time) ----
+// To create admin: Go to Firebase Console → Authentication → Add User with your email
+// Then run this in console once: setupAdmin('YOUR_ADMIN_UID')
+window.setupAdmin = async (uid, name='Admin', email=ADMIN_EMAIL) => {
+  await setDoc(doc(db,'users',uid),{name,email,role:'admin',createdAt:serverTimestamp()});
+  console.log('Admin setup done!');
+};
+
+</script>
+</body>
+</html>
